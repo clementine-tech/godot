@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using GodotTools.Build;
 using GodotTools.Ides;
 using GodotTools.Ides.Rider;
@@ -328,7 +329,7 @@ namespace GodotTools
                             args.Add("-b");
                             args.Add(vscodeBundleId);
 
-                            // The reusing of existing windows made by the 'open' command might not choose a wubdiw that is
+                            // The reusing of existing windows made by the 'open' command might not choose a window that is
                             // editing our folder. It's better to ask for a new window and let VSCode do the window management.
                             args.Add("-n");
 
@@ -700,6 +701,23 @@ namespace GodotTools
         private static IntPtr InternalCreateInstance(IntPtr unmanagedCallbacks, int unmanagedCallbacksSize)
         {
             Internal.Initialize(unmanagedCallbacks, unmanagedCallbacksSize);
+
+            var populateConstructorMethod =
+                AppDomain.CurrentDomain
+                    .GetAssemblies()
+                    .First(x => x.GetName().Name == "GodotSharpEditor")
+                    .GetType("Godot.EditorConstructors")?
+                    .GetMethod("AddEditorConstructors",
+                        BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.Public);
+
+            if (populateConstructorMethod == null)
+            {
+                throw new MissingMethodException("Godot.EditorConstructors",
+                    "AddEditorConstructors");
+            }
+
+            populateConstructorMethod.Invoke(null, null);
+
             return new GodotSharpEditor().NativeInstance;
         }
     }
