@@ -214,6 +214,53 @@ namespace Godot.Collections
             }
         }
 
+        public void SetTyped<T>()
+        {
+            Marshaling.GetTypedCollectionParameterInfo<T>(
+                out var elemVariantType,
+                out var elemClassName,
+                out var elemScriptRef);
+
+            var self = (godot_array)NativeValue;
+
+            using (elemScriptRef)
+            {
+                NativeFuncs.godotsharp_array_set_typed(
+                    ref self,
+                    (uint)elemVariantType,
+                    elemClassName,
+                    elemScriptRef);
+            }
+        }
+
+        public void SetTyped(StringName className)
+        {
+            var self = (godot_array) NativeValue;
+            var nativeClassName = (godot_string_name) className.NativeValue;
+            var nullScript = new godot_ref();
+
+            NativeFuncs.godotsharp_array_set_typed(
+                ref self,
+                (uint) Variant.Type.Object,
+                nativeClassName,
+                nullScript);
+        }
+
+        public void SetTyped(Variant.Type type, StringName? className = null)
+        {
+            var self = (godot_array) NativeValue;
+            var nativeClassName = className != null ? (godot_string_name) className.NativeValue : new();
+            var nullScript = new godot_ref();
+
+            NativeFuncs.godotsharp_array_set_typed(
+                ref self,
+                (uint) type,
+                nativeClassName,
+                nullScript);
+        }
+
+
+
         /// <summary>
         /// Returns a copy of the <see cref="Array"/>.
         /// If <paramref name="deep"/> is <see langword="true"/>, a deep copy if performed:
