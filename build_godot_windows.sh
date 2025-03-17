@@ -8,7 +8,7 @@ scons -c
 scons platform=windows arch=x86_64 module_mono_enabled=yes precision=double
 
 # Generate the .NET glue code
-./bin/godot.windows.editor.double.x86_64.mono.exe --headless --generate-mono-glue modules/mono/glue
+wine ./bin/godot.windows.editor.double.x86_64.mono.exe --headless --generate-mono-glue modules/mono/glue
 
 # Define the NuGet source name
 NUGET_SOURCE_NAME="GodotMonoVoxel"
