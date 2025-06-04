@@ -31,7 +31,6 @@
 #include "default_theme.h"
 
 #include "core/io/image.h"
-#include "core/os/os.h"
 #include "default_font.gen.h"
 #include "default_theme_icons.gen.h"
 #include "scene/resources/font.h"
@@ -92,6 +91,8 @@ static Ref<ImageTexture> generate_icon(int p_index) {
 
 	Error err = ImageLoaderSVG::create_image_from_string(img, default_theme_icons_sources[p_index], scale, upsample, HashMap<Color, Color>());
 	ERR_FAIL_COND_V_MSG(err != OK, Ref<ImageTexture>(), "Failed generating icon, unsupported or invalid SVG data in default theme.");
+
+	img->fix_alpha_edges();
 #else
 	// If the SVG module is disabled, we can't really display the UI well, but at least we won't crash.
 	// 16 pixels is used as it's the most common base size for Godot icons.
@@ -1054,6 +1055,7 @@ void fill_default_theme(Ref<Theme> &theme, const Ref<Font> &default_font, const 
 	theme->set_icon("overbright_indicator", "ColorPicker", icons["color_picker_overbright"]);
 	theme->set_icon("bar_arrow", "ColorPicker", icons["color_picker_bar_arrow"]);
 	theme->set_icon("picker_cursor", "ColorPicker", icons["color_picker_cursor"]);
+	theme->set_icon("picker_cursor_bg", "ColorPicker", icons["color_picker_cursor_bg"]);
 
 	{
 		const int precision = 7;
@@ -1080,33 +1082,6 @@ void fill_default_theme(Ref<Theme> &theme, const Ref<Font> &default_font, const 
 		hue_texture->set_gradient(hue_gradient);
 
 		theme->set_icon("color_hue", "ColorPicker", hue_texture);
-	}
-
-	{
-		const int precision = 7;
-
-		Ref<Gradient> hue_gradient;
-		hue_gradient.instantiate();
-		PackedFloat32Array offsets;
-		offsets.resize(precision);
-		PackedColorArray colors;
-		colors.resize(precision);
-
-		for (int i = 0; i < precision; i++) {
-			float h = i / float(precision - 1);
-			offsets.write[i] = h;
-			colors.write[i] = Color::from_ok_hsl(h, 1, 0.5);
-		}
-		hue_gradient->set_offsets(offsets);
-		hue_gradient->set_colors(colors);
-
-		Ref<GradientTexture2D> hue_texture;
-		hue_texture.instantiate();
-		hue_texture->set_width(800);
-		hue_texture->set_height(6);
-		hue_texture->set_gradient(hue_gradient);
-
-		theme->set_icon("color_okhsl_hue", "ColorPicker", hue_texture);
 	}
 
 	// ColorPickerButton
@@ -1257,6 +1232,7 @@ void fill_default_theme(Ref<Theme> &theme, const Ref<Font> &default_font, const 
 	theme->set_color("selection_stroke", "GraphEdit", Color(1, 1, 1, 0.8));
 	theme->set_color("activity", "GraphEdit", Color(1, 1, 1));
 	theme->set_color("connection_hover_tint_color", "GraphEdit", Color(0, 0, 0, 0.3));
+	theme->set_constant("connection_hover_thickness", "GraphEdit", 0);
 	theme->set_color("connection_valid_target_tint_color", "GraphEdit", Color(1, 1, 1, 0.4));
 	theme->set_color("connection_rim_color", "GraphEdit", style_normal_color);
 

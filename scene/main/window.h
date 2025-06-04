@@ -103,7 +103,7 @@ public:
 		DEFAULT_WINDOW_SIZE = 100,
 	};
 
-	// Keep synced with enum hint for `initial_position` property.
+	// Keep synced with enum hint for `initial_position` property and `display/window/size/initial_position_type` project setting.
 	enum WindowInitialPosition {
 		WINDOW_INITIAL_POSITION_ABSOLUTE,
 		WINDOW_INITIAL_POSITION_CENTER_PRIMARY_SCREEN,
@@ -120,7 +120,7 @@ private:
 	String title;
 	String tr_title;
 	mutable int current_screen = 0;
-	mutable Vector2i position;
+	mutable Point2i position;
 	mutable Size2i size = Size2i(DEFAULT_WINDOW_SIZE, DEFAULT_WINDOW_SIZE);
 	mutable Size2i min_size;
 	mutable Size2i max_size;
@@ -400,6 +400,9 @@ public:
 
 	void grab_focus();
 	bool has_focus() const;
+
+	void start_drag();
+	void start_resize(DisplayServer::WindowResizeEdge p_edge);
 
 	Rect2i get_usable_parent_rect() const;
 

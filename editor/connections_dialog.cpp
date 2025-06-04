@@ -453,7 +453,13 @@ void ConnectDialog::_update_ok_enabled() {
 }
 
 void ConnectDialog::_update_warning_label() {
-	Ref<Script> scr = source->get_node(dst_path)->get_script();
+	Node *dst = source->get_node(dst_path);
+	if (dst == nullptr) {
+		warning_label->set_visible(false);
+		return;
+	}
+
+	Ref<Script> scr = dst->get_script();
 	if (scr.is_null()) {
 		warning_label->set_visible(false);
 		return;
@@ -865,9 +871,8 @@ ConnectDialog::ConnectDialog() {
 	hbc_method->add_child(dst_method);
 	register_text_enter(dst_method);
 
-	open_method_tree = memnew(Button);
+	open_method_tree = memnew(Button(TTRC("Pick")));
 	hbc_method->add_child(open_method_tree);
-	open_method_tree->set_text("Pick");
 	open_method_tree->connect(SceneStringName(pressed), callable_mp(this, &ConnectDialog::_open_method_popup));
 
 	advanced = memnew(CheckButton(TTR("Advanced")));
@@ -1446,7 +1451,7 @@ void ConnectionsDock::update_tree() {
 				doc_class_name = String();
 			}
 
-			class_icon = editor_data.get_script_icon(script_base);
+			class_icon = editor_data.get_script_icon(script_base->get_path());
 			if (class_icon.is_null() && has_theme_icon(native_base, EditorStringName(EditorIcons))) {
 				class_icon = get_editor_theme_icon(native_base);
 			}
@@ -1648,7 +1653,7 @@ ConnectionsDock::ConnectionsDock() {
 	slot_menu->connect("about_to_popup", callable_mp(this, &ConnectionsDock::_slot_menu_about_to_popup));
 	slot_menu->add_item(TTR("Edit..."), SLOT_MENU_EDIT);
 	slot_menu->add_item(TTR("Go to Method"), SLOT_MENU_GO_TO_METHOD);
-	slot_menu->add_shortcut(ED_SHORTCUT("connections_editor/disconnect", TTR("Disconnect"), Key::KEY_DELETE), SLOT_MENU_DISCONNECT);
+	slot_menu->add_shortcut(ED_SHORTCUT("connections_editor/disconnect", TTRC("Disconnect"), Key::KEY_DELETE), SLOT_MENU_DISCONNECT);
 	add_child(slot_menu);
 
 	connect_dialog->connect("connected", callable_mp(this, &ConnectionsDock::_make_or_edit_connection));
