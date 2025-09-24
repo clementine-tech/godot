@@ -1267,10 +1267,13 @@ GDExtensionBool CSharpLanguage::_instance_binding_reference_callback(void *p_tok
 
 	RefCounted *rc_owner = Object::cast_to<RefCounted>(script_binding.owner);
 
-#ifdef DEBUG_ENABLED
-	CRASH_COND(!rc_owner);
-#endif
-
+// #ifdef DEBUG_ENABLED
+// 	CRASH_COND(!rc_owner);
+// #endif
+	if (!rc_owner) {
+		return false;
+	}
+	
 	MonoGCHandleData &gchandle = script_binding.gchandle;
 
 	int refcount = rc_owner->get_reference_count();
